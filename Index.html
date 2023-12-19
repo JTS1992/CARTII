@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Mexican Free-Tailed Bat Population Analysis</title>
+  <style>
+    html, body, #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.28/esri/themes/light/main.css">
+  <script src="https://js.arcgis.com/4.28/"></script>
+  <script>
+    require([
+      "esri/Map",
+      "esri/views/MapView",
+      "esri/layers/MapImageLayer",
+      "esri/layers/FeatureLayer",
+      "esri/widgets/Legend"
+    ], function(Map, MapView, MapImageLayer, FeatureLayer, Legend) {
+
+      
+      var map = new Map({
+        basemap: "topo-vector"
+      });
+
+  
+      var view = new MapView({
+        container: "viewDiv",
+        map: map,
+        zoom: 6,
+        center: [-99.9018, 31.9686]  // Centered on Texas
+      });
+
+    
+      var caveLayer = new MapImageLayer({
+        url: "https://gisrest.cedarparktexas.gov/cpgis/rest/services/ParksandRecreation/Caves/MapServer",
+        title: "Cave Systems"
+      });
+
+      
+      var protectionLayer = new FeatureLayer({
+        url: "https://tiles.arcgis.com/tiles/nzS0F0zdNLvs7nc8/arcgis/rest/services/WNS_Bat_14176/MapServer",
+        title: "Protected/Public Accessed Caves"
+      });
+
+     
+      var diseaseLayer = new FeatureLayer({
+        url: "https://tiles.arcgis.com/tiles/HfnRNq1Q3LVJ3GbP/arcgis/rest/services/Big_Bat_Cave_V2_1_tif/MapServer",
+        title: "Bat Cave Diseases"
+      });
+
+   
+      map.addMany([caveLayer, protectionLayer, diseaseLayer]);
+
+     
+      var legend = new Legend({
+        view: view,
+        layerInfos: [
+          { layer: caveLayer, title: "Cave Systems" },
+          { layer: protectionLayer, title: "Protected/Public Accessed Caves" },
+          { layer: diseaseLayer, title: "Bat Cave Diseases" }
+        ]
+      });
+
+      
+      view.ui.add(legend, "bottom-left");
+    });
+  </script>
+</head>
+<body>
+  <div id="viewDiv"></div>
+</body>
+</html>
