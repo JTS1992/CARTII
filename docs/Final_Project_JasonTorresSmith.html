@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Bat Population Analysis of the LoneStar State</title>
+<style>
+    html, body{
+      width: 100%;
+      height: 100%;
+      background-color: black;
+    }
+    
+        #legendDiv {
+            padding: 1;
+            float: left;
+            left: 0;
+            margin: 0.2%;
+            height: 82%;
+            width: 16.5%
+    }
+        #viewDiv2 {
+        float: right;
+        right: 0;
+        padding: 1;
+        margin: 0.2%;
+        height: 37.1%;
+        width: 25.5%;
+    }
+        #viewDiv3 {
+        float: right;
+        right: 0;
+        padding: 1;
+        margin: 0.2%;
+        height: 38.1%;
+        width: 25.5%;
+    }
+
+    
+    #viewDiv {
+    padding: 1;
+        float: left;
+        left: 0;
+    margin: 0;
+    height: 82%;
+    width: 56%;
+  }
+    #titleDiv{
+        float: left;
+        height: 31px;
+    width: 49.5%;
+    background-color: black;
+        color: white;
+        text-align: right;
+        padding-right: 0.5%;
+        font-weight: 400;
+        font-size: 25px
+    }
+    h2{
+     text-align: center;
+        color: white; 
+        float: right
+    }
+    #header {
+        width: 100%;
+        background-color: blue;
+        height: 10%;
+        text-align: center;
+        color: white;
+    }
+
+    #titleDiv1 {
+         float: Right;
+            height: 4%;
+            width: 24.5%;
+            background-color: black;
+            color: white;
+            text-align: Center;
+            font-weight: 400;
+            font-size: 25px
+    }
+    #extentDiv{
+        border: 2px solid red;
+        position: absolute;
+        z-index: 2;
+    }
+
+</style>
+<link rel="stylesheet" href="https://js.arcgis.com/4.28/esri/themes/light/main.css">
+<script src="https://js.arcgis.com/4.28/"></script>
+    <script>
+        require([
+            "esri/Map",
+            "esri/views/MapView",
+            "esri/layers/FeatureLayer",
+             "esri/layers/CSVLayer",
+            "esri/symbols/SimpleFillSymbol",
+            "esri/renderers/SimpleRenderer", 
+            "esri/widgets/Legend",
+            "esri/widgets/LayerList"
+        ], function(Map,MapView,FeatureLayer,CSVLayer,SimpleFillSymbol,SimpleRenderer,Legend,LayerList){
+     var map = new Map({
+            basemap: "topo-vector"
+        });
+        
+        var view = new MapView({
+            container: "viewDiv3",
+            map: map,
+            zoom: 7,
+            center: [-98.6325, 30.0938]
+        });
+        var WNS = new FeatureLayer({
+        portalItem: {
+          id: "59597c25d3d9454d9bbb91d2a40b0176"
+        }
+      });
+
+      map.add(WNS); 
+            
+        var template = {
+        title: "Texas Caves",
+        content: "Name: {Name}"
+      };
+
+      var TexasCaves = new CSVLayer({
+        url: "https://dl.dropboxusercontent.com/scl/fi/if8oocbojamsgowpow5as/TexasCaves.csv?rlkey=9ah1xa2wygag1jywxkx8ikho2&dl=0",
+        title: "TexasCaves",
+        popupTemplate: template,
+        copyright: "TSS"
+      });
+
+      map.add(TexasCaves);  
+            
+             var Boundaries = new FeatureLayer ({
+                portalItem:{
+                    id:"47c52b2c0edb4af0ad2c27a17b262b87"
+                }
+            });   
+            
+       map.add(Boundaries);  
+       
+       var texaspopulation = new FeatureLayer ({
+        title: "Texas Population",
+        portalItem:{
+          id:"f5e8a82a55e34eef8167bd9a2a8a8bdf"
+        }
+       });
+       map.add(texaspopulation);
+
+
+               
+        var map2 = new Map({
+            basemap:"topo-vector"
+        });
+        var view2 = new MapView({
+            container: "viewDiv",
+            map: map2,
+            zoom: 7,
+            center: [-98.6325, 30.0938],
+              constraints: {
+                rotationEnabled: false
+            }
+        });
+            
+    
+    
+             var template = {
+        title: "Known Bat Sites", 
+        content: "Location: {Name}; Approximate population: {Approx. Population}; Species of bats found: {Species}"
+      }
+
+      var KnownBatSites = new CSVLayer({
+        url: "https://dl.dropboxusercontent.com/scl/fi/648q7g4yy5tgvxah5l0yw/KnownBatSites.csv?rlkey=26jhwn8071iq0r81jjgbjlyop&dl=0",
+        title: "Known Bat Sites",
+        popupTemplate: template,
+        copyright: "Texas Parks and Wildlife"
+      });
+            map2.add(KnownBatSites);
+            KnownBatSites.renderer = {
+        type: "simple",
+        symbol: {
+          type: "simple-marker",
+          color: "#FF00C5",
+          size: 10,
+          outline: {
+            width: 0.5,
+            color: "white"
+          }
+        },
+        visualVariables: [
+          {
+            type: "size",
+            field: "Approx. Population", 
+            valueUnit: "unknown",
+            minDataValue: 50000,
+            maxDataValue: 15000000, 
+            minSize: {
+              type: "size",
+                            valueExpression: "$view.scale",
+                            stops:[
+                                {
+                                    value: 1100,
+                                    size: 12
+                                },{
+                                   value: 36000, 
+                                    size: 8
+                                    },{
+                                    value: 9000000,
+                                    size: 6
+                                    },{
+                                    value: 75000000, 
+                                    size: 4
+                                    },{
+                                    value: 60000000,
+                                    size: 2
+                                    }
+                            ]
+                        },
+                    maxSize:{
+                        type: "size",
+                        valueExpression: "$view.scale",
+                        stops:[
+                                {
+                                    value: 1100,
+                                    size: 80
+                                },{
+                                   value: 36000, 
+                                    size: 60
+                                    },{
+                                    value: 9000000,
+                                    size: 50
+                                    },{
+                                    value: 75000000, 
+                                    size: 50
+                                    },{
+                                    value: 60000000,
+                                    size: 25
+                                    }
+                                  ]                          
+          }
+        }]
+      };
+                var WNS = new FeatureLayer({
+        portalItem: {
+          id: "59597c25d3d9454d9bbb91d2a40b0176"
+        }
+      });
+
+      map2.add(WNS);
+            
+         var Boundaries = new FeatureLayer ({
+                portalItem:{
+                    id:"47c52b2c0edb4af0ad2c27a17b262b87"
+                }
+            });   
+            
+       map2.add(Boundaries);
+        
+        var map3 = new Map({
+            basemap:"topo-vector"
+        });
+        var view3 = new MapView({
+            container: "viewDiv2", 
+            map: map3,
+            zoom: 7, 
+            center: [-98.6325, 30.0938],
+            constraints: {
+            rotationEnabled: false
+        }
+        });
+            
+     var template = {
+        title: "Texas State Parks",
+        content: "Location: {Park}; visitors as of 2022: {Visitors (2022)}."
+      };
+
+      var TexasStateParks = new CSVLayer({
+        url: "https://dl.dropboxusercontent.com/scl/fi/gwceyqrf4bvl5lu4c8rr4/Texas-State-Parks.csv?rlkey=ueuzpynfv5tij0xx16uuer24l&dl=0",
+        title: "Texas State Parks",
+        popupTemplate: template,
+        copyright: "Texas Parks & Wildlife"
+      });        
+            map3.add(TexasStateParks);
+
+      TexasStateParks.renderer = {
+        type: "simple",
+        symbol: {
+          type: "simple-marker",
+          color: "#621900",
+          size: 10,
+          outline: {
+            width: 0.5,
+            color: "white"
+          }
+        },
+        visualVariables: [
+          {
+            type: "size",
+            field: "Visitors (2022)",
+            valueUnit: "unknown",
+            minDataValue: 0,
+            maxDataValue: 900000,
+            minSize: {
+              type: "size",
+                            valueExpression: "$view.scale",
+                            stops:[
+                                {
+                                    value: 1100,
+                                    size: 12
+                                },{
+                                   value: 36000, 
+                                    size: 8
+                                    },{
+                                    value: 9000000,
+                                    size: 6
+                                    },{
+                                    value: 75000000, 
+                                    size: 4
+                                    },{
+                                    value: 60000000,
+                                    size: 2
+                                    }
+                            ]
+                        },
+                    maxSize:{
+                        type: "size",
+                        valueExpression: "$view.scale",
+                        stops:[
+                                {
+                                    value: 1100,
+                                    size: 80
+                                },{
+                                   value: 36000, 
+                                    size: 60
+                                    },{
+                                    value: 9000000,
+                                    size: 50
+                                    },{
+                                    value: 75000000, 
+                                    size: 50
+                                    },{
+                                    value: 60000000,
+                                    size: 25
+                                    }
+                                  ]
+            }
+          }]
+      }; 
+            
+            var WNS = new FeatureLayer({
+        portalItem: {
+          id: "59597c25d3d9454d9bbb91d2a40b0176"
+        }
+      });
+
+      map3.add(WNS);
+            
+            var Boundaries = new FeatureLayer ({
+                portalItem:{
+                    id:"47c52b2c0edb4af0ad2c27a17b262b87"
+                }
+            });
+            map3.add(Boundaries);
+      
+            
+           
+            
+    const layerList = new LayerList({
+    container: "legendDiv",
+    view: view2,
+    listItemCreatedFunction: function(event) {
+        const item = event.item;
+        if (item.layer.type != "group") {
+            item.panel = {
+                content: "legend",
+                open: true
+            };
+        }
+    }
+});
+
+const layerList2 = new LayerList({
+    container: "legendDiv",
+    view: view3,
+    listItemCreatedFunction: function(event) {
+        const item = event.item;
+        if (item.layer.type != "group") {
+            item.panel = {
+                content: "legend",
+                open: true
+            };
+        }
+    }
+});
+
+const layerList3 = new LayerList({
+    container: "legendDiv",
+    view: view,
+    listItemCreatedFunction: function(event) {
+        const item = event.item;
+        if (item.layer.type != "group") {
+            item.panel = {
+                content: "legend",
+                open: true
+            };
+        }
+    }
+});      
+
+
+ const views = [view, view2, view3];
+        let active;
+
+        const sync = (source) => {
+          if (!active || !active.viewpoint || active !== source) {
+            return;
+          }
+
+          for (const view of views) {
+            if (view !== active) {
+              view.viewpoint = active.viewpoint;
+            }
+          }
+        };
+
+        for (const view of views) {
+          view.watch(["interacting", "animation"], () => {
+            active = view;
+            sync(active);
+          });
+
+          view.watch("viewpoint", () => sync(view));
+        }
+        });
+        
+    </script>
+ </head>
+<body>
+<div id = "header"; style="display: table; height: 15px; overflow: hidden;" ><h1 style="vertical-align: middle">Bat Population Analysis of the LoneStar State</h1></div>
+    <div id = "titleDiv">Known Bat Populations</div>
+    <div id = "titleDiv">Texas State Parks & Visitors</div>
+    <div id= "legendDiv"></div>
+    <div id = "viewDiv"></div>
+    <div id="viewDiv2"></div>
+    <div id= "titleDiv1">Known Texas Caves</div>
+    <div id= "viewDiv3"></div>
+    
+
+</body>
+</html>
